@@ -27,6 +27,34 @@ export type PageResult = {
   size: number
 }
 
+export type WallFormInput = {
+  结构编号: string
+  所属工程: string
+  结构形式: string
+  结构长度: number | string
+  结构高度: number | string
+  基础埋深: number | string
+  验收日期: string
+}
+
+export type ExportReceipt = {
+  moduleKey: string
+  contentHash: string
+  exportedAt: string
+  filename: string
+  patrolTodoId: number
+  duplicate: boolean
+}
+
+export type ExportResult = {
+  ok: boolean
+  duplicate?: boolean
+  receipt?: ExportReceipt
+  filename: string
+  content: string
+  message: string
+}
+
 export type ActionResult = {
   ok: boolean
   message: string

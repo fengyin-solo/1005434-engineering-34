@@ -31,11 +31,47 @@ npm run dev
 
 前端默认监听 `http://127.0.0.1:5173/`，dev server 不会自动打开浏览器，需要自己访问。
 
-生产构建：
+生产构建必须先通过发版自检闸口（依赖校验 + TypeScript/Vue 类型检查），任一失败都会以非零状态中断，不进入打包：
 
 ```bash
 cd frontend
+npm install
 npm run build
+```
+
+也可以只运行自检：
+
+```bash
+cd frontend
+npm run preflight
+```
+
+闸口会分别打印：
+
+- 依赖问题：缺失的 npm 包名以及引用该包的源码文件；
+- 类型问题：`vue-tsc` 报错文件、行列号与原始错误；
+- 退回办法：若问题版本已部署，重新部署上一个 release 镜像/静态产物；Swarm 服务也可执行 `docker service update --rollback frontend`。
+
+干净目录验收可直接运行（会把当前工作树生成临时提交，克隆到系统临时目录后执行 `npm ci` 和 `npm run build`）：
+
+```bash
+cd frontend
+npm run verify:clean
+```
+
+也可以对真实远端执行人工验收：
+
+```bash
+git clone <仓库地址> geohazard-patrol-clean
+cd geohazard-patrol-clean/frontend
+npm ci
+npm run build
+```
+
+所有脚本都基于脚本自身所在目录和相对路径定位，不依赖 `/workspace` 或固定部署目录。Docker 镜像同样在镜像内先 `npm run build`，再用 `vite preview` 提供产物：
+
+```bash
+docker compose up --build
 ```
 
 ## 业务模块
@@ -68,4 +104,8 @@ npm run build
 - 字段、状态、动作与流转目标集中在 `frontend/src/data/modules.ts`；示例数据在
   `frontend/src/data/seed.ts`。
 - 状态流转只允许在 `local-service.ts` 里改，页面组件不做业务判断。
+- 支挡结构状态严格按「待浇筑 → 施工中 → 待验收 → 已验收」逐段推进，跨阶段动作会被拒绝。
+- 支挡结构的登记、筛选、编辑共用 `src/data/wall-catalog.ts` 的结构形式选项；编辑既有记录时沿用原结构形式，不重新取值。
+- 支挡结构长度、结构高度、基础埋深必须为大于 0 且最多两位小数的数字；精度不合法时直接返回错误，不写入本地数据。
+- 支挡结构清单第一次导出会在群测群防巡查中新增一条「待巡查」待办；同一份内容重复导出只承认第一份，不重复新增待办。
 - 想回到初始数据：清掉浏览器里 `geohazard-patrol:entries` 这一项，或调用 `resetModule(模块)`。
