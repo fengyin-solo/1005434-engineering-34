@@ -3,6 +3,15 @@ import type { EntryRow } from './types'
 
 // 本地持久化：数据放在 localStorage 里，刷新、关掉再打开都还在。
 const STORAGE_KEY = 'geohazard-patrol:entries'
+// 导出台账：每一次有效导出都记一笔，重复导出靠它认「先到的那一份」。
+const EXPORT_LEDGER_KEY = 'geohazard-patrol:exports'
+
+export type ExportRecord = {
+  module: string
+  fingerprint: string
+  filename: string
+  exportedAt: string
+}
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
@@ -56,4 +65,36 @@ export function resetRows(key: string): EntryRow[] {
 
 export function storageKey(): string {
   return STORAGE_KEY
+}
+
+function readExportLedger(): ExportRecord[] {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return []
+  }
+  const raw = window.localStorage.getItem(EXPORT_LEDGER_KEY)
+  if (!raw) {
+    return []
+  }
+  try {
+    return JSON.parse(raw) as ExportRecord[]
+  } catch {
+    return []
+  }
+}
+
+let exportLedgerCache: ExportRecord[] | null = null
+
+export function listExportRecords(): ExportRecord[] {
+  if (exportLedgerCache === null) {
+    exportLedgerCache = readExportLedger()
+  }
+  return exportLedgerCache
+}
+
+export function appendExportRecord(record: ExportRecord): void {
+  const next = [...listExportRecords(), record]
+  exportLedgerCache = next
+  if (typeof window !== 'undefined' && window.localStorage) {
+    window.localStorage.setItem(EXPORT_LEDGER_KEY, JSON.stringify(next))
+  }
 }

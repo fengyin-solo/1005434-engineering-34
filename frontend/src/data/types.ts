@@ -18,6 +18,10 @@ export type ModuleMeta = {
   actions: string[]
   actionTargets: Record<string, string>
   metrics: string[]
+  /** 为 true 时状态只能按 statuses 顺序逐段推进，跳级一律拦下。 */
+  stepwise?: boolean
+  /** 字段候选值：登记、筛选等入口统一从这里取数。 */
+  fieldOptions?: Record<string, string[]>
 }
 
 export type PageResult = {
@@ -29,6 +33,14 @@ export type PageResult = {
 
 export type ActionResult = {
   ok: boolean
+  message: string
+}
+
+export type ExportResult = {
+  filename: string
+  content: string
+  /** 为 true 表示这次导出与先到的那一份内容一致，已被拦下、不再重复记账。 */
+  duplicate: boolean
   message: string
 }
 

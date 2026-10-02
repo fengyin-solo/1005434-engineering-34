@@ -1,4 +1,4 @@
-.PHONY: install frontend build
+.PHONY: install frontend build release rollback
 
 install:
 	cd frontend && npm install
@@ -8,3 +8,9 @@ frontend:
 
 build:
 	cd frontend && npm run build
+
+release:
+	node scripts/release.mjs
+
+rollback:
+	node scripts/rollback.mjs

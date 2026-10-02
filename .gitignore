@@ -29,6 +29,9 @@ classes/
 *.war
 *.local
 
+# ===== 发版归档 =====
+releases/
+
 # ===== 包管理器 / 构建缓存 =====
 .npm/
 .cache/

@@ -1,4 +1,5 @@
 import type { ModuleMeta } from './types'
+import { WALL_STRUCTURE_FORMS } from './wall-forms'
 
 // 模块元数据由仓库生成时写入：字段、状态、动作、流转目标都在这里，页面不再各自写一遍。
 export const MODULES: ModuleMeta[] = [
@@ -133,6 +134,8 @@ export const MODULES: ModuleMeta[] = [
     actions: ["确认浇筑", "提交验收", "确认通过"],
     actionTargets: {"确认浇筑": "施工中", "提交验收": "待验收", "确认通过": "已验收"},
     metrics: ["施工中结构", "待验收结构", "结构总长度"],
+    stepwise: true,
+    fieldOptions: {"结构形式": WALL_STRUCTURE_FORMS},
   },
   {
     key: "drainage",
